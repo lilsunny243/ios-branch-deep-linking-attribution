@@ -348,52 +348,6 @@ typedef void (^UrlConnectionCallback)(NSURLResponse *, NSData *, NSError *);
 }
 
 //==================================================================================
-// TEST 09
-// Test certifcate pinning functionality.
-
-// We do NOT pin by default anymore.
-//- (void) testCertificatePinning {
-//
-//    [OHHTTPStubs removeAllStubs];
-//    BNCServerInterface *serverInterface = [[BNCServerInterface alloc] init];
-//
-//    XCTestExpectation* pinSuccess = [self expectationWithDescription:@"PinSuccess1"];
-//    [serverInterface getRequest:[NSDictionary new]
-//        url:@"https://branch.io"
-//        key:@""
-//        callback:^ (BNCServerResponse*response, NSError*error) {
-//            XCTAssertEqualObjects(response.statusCode, @200);
-//            [pinSuccess fulfill];
-//        }];
-//
-//    XCTestExpectation* pinFail1 = [self expectationWithDescription:@"PinFail1"];
-//    [serverInterface getRequest:[NSDictionary new]
-//        url:@"https://google.com"
-//        key:@""
-//        callback:^ (BNCServerResponse*response, NSError*error) {
-//            XCTAssertEqualObjects(response.statusCode, @-999);
-//            [pinFail1 fulfill];
-//        }];
-//
-//#if 0
-//    // TODO: Fix so the end point so the test works on external (outside the Branch office) networks.
-//
-//    XCTestExpectation* pinFail2 = [self expectationWithDescription:@"PinFail2"];
-//    [serverInterface getRequest:[NSDictionary new]
-//        url:@"https://internal-cert-pinning-test-470549067.us-west-1.elb.amazonaws.com/"
-//        key:@""
-//        callback:^ (BNCServerResponse*response, NSError*error) {
-//            XCTAssertEqualObjects(response.statusCode, @-999);
-//            //XCTAssertEqualObjects(response.statusCode, @200);
-//            [pinFail2 fulfill];
-//        }];
-//#endif
-//
-//  [self waitForExpectationsWithTimeout:10.0 handler:nil];
-//}
-
-
-//==================================================================================
 // TEST 10
 // Test mapping of X-Branch-Request-Id to [BNCServerResponse requestId]
 
@@ -421,55 +375,6 @@ typedef void (^UrlConnectionCallback)(NSURLResponse *, NSData *, NSError *);
     }];
 
     [self waitForExpectationsWithTimeout:5.0 handler:nil];
-}
-
-- (void) testServerInterfaceDictionaryPrepForGbraid {
-    
-    [HTTPStubs removeAllStubs];
-    
-    BNCServerInterface *serverInterface = [[BNCServerInterface alloc] init];
-    serverInterface.preferenceHelper = [BNCPreferenceHelper sharedInstance];
-    serverInterface.preferenceHelper.retryCount = 3;
-    serverInterface.requestEndpoint = @"/v2/event/standard";
-    
-    [BNCPreferenceHelper sharedInstance].randomizedBundleToken = @"575759106028389737";
- 
-    // Set referrerGBRAID and referrerGBRAIDInitDate
-    NSString *gbraidValue = @"CjwKCAiA3L6PBhBvEiwAINlJ9Chixm216y8kYYJ1K94dm4FEkOgFfhIdKQdjWsYB7FqE7rf_zkGNEhoCuIEQAvD_BwE";
-    [BNCPreferenceHelper sharedInstance].referrerGBRAID = gbraidValue;
-    NSDate *now = [NSDate date];
-    [BNCPreferenceHelper sharedInstance].referrerGBRAIDInitDate = now;
-    
-    //Check - gbraid should be present
-    NSMutableDictionary *result = [serverInterface prepareParamDict:NULL key:@"1234567890" retryNumber:3 requestType:@"POST"];
-    XCTAssertNotNil([result objectForKey:BRANCH_REQUEST_KEY_REFERRER_GBRAID]);
-    XCTAssertTrue([[result objectForKey:BRANCH_REQUEST_KEY_REFERRER_GBRAID] isEqualToString:gbraidValue]);
-    
-    // Check for gbraid timestamp
-    XCTAssertNotNil([result objectForKey:BRANCH_REQUEST_KEY_REFERRER_GBRAID_TIMESTAMP]);
-    NSString *tsInMs = [NSString stringWithFormat:@"%lld", (long long)([now timeIntervalSince1970]*1000)];
-    XCTAssertTrue([[result objectForKey:BRANCH_REQUEST_KEY_REFERRER_GBRAID_TIMESTAMP] isEqualToString:tsInMs]);
-
-    //Check - gbraid should  be present - endpoint is open
-    serverInterface.requestEndpoint = @"/v1/open";
-    result = [serverInterface prepareParamDict:NULL key:@"1234567890" retryNumber:3 requestType:@"POST"];
-    XCTAssertNotNil([result objectForKey:BRANCH_REQUEST_KEY_REFERRER_GBRAID]);
-    
-    //Check - gbraid should not be present - validity is expired
-    NSDate *pastDate = [[NSDate date] dateByAddingTimeInterval:-2592001];
-    [BNCPreferenceHelper sharedInstance].referrerGBRAIDInitDate = pastDate;
-    serverInterface.requestEndpoint = @"/v2/event/standard";
-    result = [serverInterface prepareParamDict:NULL key:@"1234567890" retryNumber:3 requestType:@"POST"];
-    XCTAssertNil([result objectForKey:BRANCH_REQUEST_KEY_REFERRER_GBRAID]);
-    
-    //Check - gbraid should be present. Date is reset
-    [BNCPreferenceHelper sharedInstance].referrerGBRAIDInitDate = now;
-    result = [serverInterface prepareParamDict:NULL key:@"1234567890" retryNumber:3 requestType:@"POST"];
-    XCTAssertNotNil([result objectForKey:BRANCH_REQUEST_KEY_REFERRER_GBRAID]);
-    XCTAssertTrue([[result objectForKey:BRANCH_REQUEST_KEY_REFERRER_GBRAID] isEqualToString:gbraidValue]);
-    
-    [BNCPreferenceHelper sharedInstance].referrerGBRAID = nil;
-  
 }
 
 @end

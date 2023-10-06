@@ -11,6 +11,8 @@
 #import "BNCDeviceInfo.h"
 #import "BNCPreferenceHelper.h"
 #import "Branch.h"
+#import "BNCLog.h"
+#import "BNCConfig.h"
 
 @implementation BranchPluginSupport
 
@@ -23,6 +25,7 @@
     return pluginSupport;
 }
 
+// Provides a subset of BNCDeviceInfo.v2dictionary for Adobe Launch
 - (NSDictionary<NSString *, NSString *> *)deviceDescription {
     NSMutableDictionary<NSString *, NSString *> *dictionary = [NSMutableDictionary new];
     BNCDeviceInfo *deviceInfo = [BNCDeviceInfo getInstance];
@@ -47,6 +50,27 @@
     }
     
     return dictionary;
+}
+
+#pragma mark - Server URL methods
+
+// With the change to support Apple's tracking domain feature, this API no longer works. See SDK-2118
+// Overrides base API URL
++ (void)setAPIUrl:(NSString *)url {
+    if([url hasPrefix:@"http://"] || [url hasPrefix:@"https://"] ){
+        [[BNCPreferenceHelper sharedInstance] setBranchAPIURL:url];
+    } else {
+        BNCLogWarning(@"Ignoring invalid custom API URL");
+    }
+}
+
+// Overrides base CDN URL
++ (void)setCDNBaseUrl:(NSString *)url {
+    if([url hasPrefix:@"http://"] || [url hasPrefix:@"https://"] ){
+        [[BNCPreferenceHelper sharedInstance] setPatternListURL:url];
+    } else {
+        BNCLogWarning(@"Ignoring invalid custom CDN URL");
+    }
 }
 
 @end

@@ -16,7 +16,6 @@
 // Public classes that should be in the umbrella header
 #import "BranchLinkProperties.h"
 #import "BranchUniversalObject.h"
-#import "BranchCrossPlatformID.h"
 #import "BranchLastAttributedTouchData.h"
 #import "BranchDeepLinkingController.h"
 #import "BranchDelegate.h"
@@ -45,7 +44,6 @@
 //#import "BranchScene.h"
 //#import "BranchPluginSupport.h"
 //#import "BranchQRCode.h"
-//#import "BNCCommerceEvent.h"
 //#import "BNCConfig.h"
 //#import "NSError+Branch.h"
 //#import "BNCLog.h"
@@ -153,12 +151,6 @@ extern NSString * __nonnull const BNCShareCompletedEvent;
 // Spotlight Constant
 extern NSString * __nonnull const BNCSpotlightFeature;
 
-#pragma mark - Branch Enums
-typedef NS_ENUM(NSUInteger, BranchCreditHistoryOrder) {
-    BranchMostRecentFirst,
-    BranchLeastRecentFirst
-};
-
 #pragma mark - BranchLink
 
 @interface BranchLink : NSObject
@@ -263,8 +255,9 @@ typedef NS_ENUM(NSUInteger, BranchCreditHistoryOrder) {
 
 + (BOOL)branchKeyIsSet;
 
-/// TODO: Add documentation.
 @property (weak, nullable) NSObject<BranchDelegate>* delegate;
+
+//@property (strong, nonatomic, nullable) BranchEvent *testEvent;
 
 #pragma mark - BranchActivityItemProvider methods
 #if !TARGET_OS_TV
@@ -647,35 +640,6 @@ typedef NS_ENUM(NSUInteger, BranchCreditHistoryOrder) {
 @property (copy, nullable) NSArray<NSString*>/*_Nullable*/* urlPatternsToIgnore;
 
 /**
- Register your Facebook SDK's FBSDKAppLinkUtility class to be used by Branch for deferred deep linking from their platform
-
- @param FBSDKAppLinkUtility - call [FBSDKAppLinkUtility class] after importing #import <FBSDKCoreKit/FBSDKCoreKit.h>
- */
-- (void)registerFacebookDeepLinkingClass:(id)FBSDKAppLinkUtility;
-
-/**
- Check for Apple Search Ads before initialization.
- 
- This will usually add less than 1 second on first time startup.  Up to 3.5 seconds if Apple Search Ads fails to respond.
- */
-- (void)delayInitToCheckForSearchAds;
-
-/**
- Increases the amount of time the SDK waits for Apple Search Ads to respond.
- The default wait has a better than 90% success rate, however waiting longer can improve the success rate.
-
- This will increase the usual delay to about 3 seconds on first time startup.  Up to about 15 seconds if Apple Search Ads fails to respond.
- */
-- (void)useLongerWaitForAppleSearchAds;
-
-/**
- Ignores Apple Search Ads test data.
- 
- Apple returns test data for all calls made to the Apple Search Ads API on developer and testflight builds.
- */
-- (void)ignoreAppleSearchAdsTestData;
-
-/**
  Checks the pasteboard (clipboard) for a Branch Link on App Install.
  If found, the Branch Link is used to provide deferred deeplink data.
  
@@ -840,9 +804,7 @@ typedef NS_ENUM(NSUInteger, BranchCreditHistoryOrder) {
  * Opening Branch deep links with an explicit URL will work.
  * Deferred deep linking will not work.
  * Generating short links will not work and will return long links instead.
- * Sending user tracking events such as `userCompletedAction`, `BranchCommerceEvents`, and
-   `BranchEvents` will fail.
- * User rewards and credits will not work.
+ * Sending user tracking events such as `BranchEvents` will fail.
  * Setting a user identity and logging a user identity out will not work.
 
  @param disabled    If set to `true` then tracking will be disabled.
@@ -953,113 +915,7 @@ typedef NS_ENUM(NSUInteger, BranchCreditHistoryOrder) {
 
 - (void)logoutWithCallback:(nullable callbackWithStatus)callback;
 
-#pragma mark - Credit methods
-
-///--------------
-/// @name Credits
-///--------------
-
-- (void)loadRewardsWithCallback:(nullable callbackWithStatus)callback __deprecated_msg("Referral feature has been deprecated. This is no-op.");
-
-- (void)redeemRewards:(NSInteger)count __deprecated_msg("Referral feature has been deprecated. This is no-op.");;
-
-- (void)redeemRewards:(NSInteger)count callback:(nullable callbackWithStatus)callback __deprecated_msg("Referral feature has been deprecated. This is no-op.");
-
-- (void)redeemRewards:(NSInteger)count forBucket:(nullable NSString *)bucket __deprecated_msg("Referral feature has been deprecated. This is no-op.");
-
-- (void)redeemRewards:(NSInteger)count forBucket:(nullable NSString *)bucket callback:(nullable callbackWithStatus)callback __deprecated_msg("Referral feature has been deprecated. This is no-op.");
-
-- (NSInteger)getCredits __deprecated_msg("Referral feature has been deprecated. This is no-op.");
-
-- (NSInteger)getCreditsForBucket:(NSString *)bucket __deprecated_msg("Referral feature has been deprecated. This is no-op.");
-
-- (void)getCreditHistoryWithCallback:(nullable callbackWithList)callback __deprecated_msg("Referral feature has been deprecated. This is no-op.");
-
-- (void)getCreditHistoryForBucket:(nullable NSString *)bucket andCallback:(nullable callbackWithList)callback __deprecated_msg("Referral feature has been deprecated. This is no-op.");
-
-- (void)getCreditHistoryAfter:(nullable NSString *)creditTransactionId number:(NSInteger)length order:(BranchCreditHistoryOrder)order andCallback:(nullable callbackWithList)callback __deprecated_msg("Referral feature has been deprecated. This is no-op.");
-
-- (void)getCreditHistoryForBucket:(nullable NSString *)bucket after:(nullable NSString *)creditTransactionId number:(NSInteger)length order:(BranchCreditHistoryOrder)order andCallback:(nullable callbackWithList)callback __deprecated_msg("Referral feature has been deprecated. This is no-op.");
-
-#pragma mark - Action methods
-
-///--------------
-/// @name Actions
-///--------------
-
-/**
- Send a user action to the server. Some examples actions could be things like `viewed_personal_welcome`, `purchased_an_item`, etc.
-
- This method should only be invoked after initSession completes, either within the callback or after a delay.
- If it is invoked before, then we will silently initialize the SDK before the callback has been set, in order to carry out this method's required task.
- As a result, you may experience issues where the initSession callback does not fire. Again, the solution to this issue is to only invoke this method after you have invoked initSession.
- 
- @param action The action string.
- */
-- (void)userCompletedAction:(nullable NSString *)action __attribute__((deprecated(("Please use BranchEvent to track commerce events. You can refer to https://help.branch.io/developers-hub/docs/tracking-commerce-content-lifecycle-and-custom-events for additional information."))));
-
-/**
- Send a user action to the server with additional state items. Some examples actions could be things like `viewed_personal_welcome`, `purchased_an_item`, etc.
-
- This method should only be invoked after initSession completes, either within the callback or after a delay.
- If it is invoked before, then we will silently initialize the SDK before the callback has been set, in order to carry out this method's required task.
- As a result, you may experience issues where the initSession callback does not fire. Again, the solution to this issue is to only invoke this method after you have invoked initSession.
- 
- @param action The action string.
- @param state The additional state items associated with the action.
- */
-- (void)userCompletedAction:(nullable NSString *)action withState:(nullable NSDictionary *)state __attribute__((deprecated(("Please use BranchEvent to track commerce events. You can refer to https://help.branch.io/developers-hub/docs/tracking-commerce-content-lifecycle-and-custom-events for additional information."))));
-
-/**
- Send a user action to the server with additional state items. Some examples actions could be things like `viewed_personal_welcome`, `purchased_an_item`, etc.
- 
- This method should only be invoked after initSession completes, either within the callback or after a delay.
- If it is invoked before, then we will silently initialize the SDK before the callback has been set, in order to carry out this method's required task.
- As a result, you may experience issues where the initSession callback does not fire. Again, the solution to this issue is to only invoke this method after you have invoked initSession.
- 
- @param action The action string.
- @param state The additional state items associated with the action.
- @param branchViewCallback Callback for Branch view state.
- 
- @deprecated Please use userCompletedAction:action:state instead
- */
-- (void)userCompletedAction:(nullable NSString *)action withState:(nullable NSDictionary *)state withDelegate:(nullable id)branchViewCallback __attribute__((deprecated(("Please use BranchEvent to track commerce events. You can refer to https://help.branch.io/developers-hub/docs/tracking-commerce-content-lifecycle-and-custom-events for additional information."))));
-
-/**
- Sends a user commerce event to the server.
-
- Use commerce events to track when a user purchases an item in your online store,
- makes an in-app purchase, or buys a subscription.  The commerce events are tracked in
- the Branch dashboard along with your other events so you can judge the effectiveness of
- campaigns and other analytics.
- 
- This method should only be invoked after initSession completes, either within the callback or after a delay.
- If it is invoked before, then we will silently initialize the SDK before the callback has been set, in order to carry out this method's required task.
- As a result, you may experience issues where the initSession callback does not fire. Again, the solution to this issue is to only invoke this method after you have invoked initSession.
-
- @param commerceEvent 	The BNCCommerceEvent that describes the purchase.
- @param metadata        Optional metadata you may want add to the event.
- @param completion 		The optional completion callback.
- 
- @deprecated Please use BNCEvent to track commerce events instead.
- */
-- (void) sendCommerceEvent:(BNCCommerceEvent*)commerceEvent
-				  metadata:(NSDictionary<NSString*,id>*)metadata
-			withCompletion:(void (^) (NSDictionary* _Nullable response, NSError* _Nullable error))completion __attribute__((deprecated(("Please use BranchEvent to track commerce events. You can refer to https://help.branch.io/developers-hub/docs/tracking-commerce-content-lifecycle-and-custom-events for additional information."))));
-
-
 #pragma mark - Query methods
-
-/**
- Branch includes SDK methods to allow retrieval of our Cross Platform ID (CPID) from the client. This results in an asynchronous call being made to Branch’s servers with CPID data returned when possible.
- 
- This method should only be invoked after initSession completes, either within the callback or after a delay.
- If it is invoked before, then we will silently initialize the SDK before the callback has been set, in order to carry out this method's required task.
- As a result, you may experience issues where the initSession callback does not fire. Again, the solution to this issue is to only invoke this method after you have invoked initSession.
- 
- @param completion callback with cross platform id data
- */
-- (void)crossPlatformIdDataWithCompletion:(void(^) (BranchCrossPlatformID * _Nullable cpid))completion;
 
 /**
  Branch includes SDK methods to allow retrieval of our last attributed touch data (LATD) from the client. This results in an asynchronous call being made to Branch's servers with LATD data returned when possible.
@@ -1580,7 +1436,6 @@ typedef NS_ENUM(NSUInteger, BranchCreditHistoryOrder) {
 
  @param title Title for the spotlight preview item.
  @param description Description for the spotlight preview item.
- @warning These functions are only usable on iOS 9 or above. Earlier versions will simply receive the callback with an error.
  */
 - (void)createDiscoverableContentWithTitle:(NSString *)title description:(NSString *)description;
 
@@ -1590,7 +1445,6 @@ typedef NS_ENUM(NSUInteger, BranchCreditHistoryOrder) {
  @param title Title for the spotlight preview item.
  @param description Description for the spotlight preview item.
  @param callback Callback called with the Branch url this will fallback to.
- @warning These functions are only usable on iOS 9 or above. Earlier versions will simply receive the callback with an error.
  */
 - (void)createDiscoverableContentWithTitle:(NSString *)title description:(NSString *)description callback:(callbackWithUrl)callback;
 
@@ -1601,7 +1455,6 @@ typedef NS_ENUM(NSUInteger, BranchCreditHistoryOrder) {
  @param description Description for the spotlight preview item.
  @param publiclyIndexable Whether or not this item should be added to Apple's public search index.
  @param callback Callback called with the Branch url this will fallback to.
- @warning These functions are only usable on iOS 9 or above. Earlier versions will simply receive the callback with an error.
  */
 - (void)createDiscoverableContentWithTitle:(NSString *)title description:(NSString *)description publiclyIndexable:(BOOL)publiclyIndexable callback:(callbackWithUrl)callback;
 
@@ -1613,7 +1466,6 @@ typedef NS_ENUM(NSUInteger, BranchCreditHistoryOrder) {
  @param type The type to use for the NSUserActivity, taken from the list of constants provided in the MobileCoreServices framework.
  @param publiclyIndexable Whether or not this item should be added to Apple's public search index.
  @param callback Callback called with the Branch url this will fallback to.
- @warning These functions are only usable on iOS 9 or above. Earlier versions will simply receive the callback with an error.
  */
 - (void)createDiscoverableContentWithTitle:(NSString *)title description:(NSString *)description type:(NSString *)type publiclyIndexable:(BOOL)publiclyIndexable callback:(callbackWithUrl)callback;
 
@@ -1626,7 +1478,6 @@ typedef NS_ENUM(NSUInteger, BranchCreditHistoryOrder) {
  @param type The type to use for the NSUserActivity, taken from the list of constants provided in the MobileCoreServices framework.
  @param publiclyIndexable Whether or not this item should be added to Apple's public search index.
  @param callback Callback called with the Branch url this will fallback to.
- @warning These functions are only usable on iOS 9 or above. Earlier versions will simply receive the callback with an error.
  */
 - (void)createDiscoverableContentWithTitle:(NSString *)title description:(NSString *)description thumbnailUrl:(NSURL *)thumbnailUrl type:(NSString *)type publiclyIndexable:(BOOL)publiclyIndexable callback:(callbackWithUrl)callback;
 
@@ -1640,7 +1491,6 @@ typedef NS_ENUM(NSUInteger, BranchCreditHistoryOrder) {
  @param type The type to use for the NSUserActivity, taken from the list of constants provided in the MobileCoreServices framework.
  @param keywords A set of keywords to be used in Apple's search index.
  @param callback Callback called with the Branch url this will fallback to.
- @warning These functions are only usable on iOS 9 or above. Earlier versions will simply receive the callback with an error.
  */
 - (void)createDiscoverableContentWithTitle:(NSString *)title description:(NSString *)description thumbnailUrl:(NSURL *)thumbnailUrl type:(NSString *)type publiclyIndexable:(BOOL)publiclyIndexable keywords:(NSSet *)keywords callback:(callbackWithUrl)callback;
 
@@ -1653,7 +1503,6 @@ typedef NS_ENUM(NSUInteger, BranchCreditHistoryOrder) {
  @param linkParams Additional params to be added to the NSUserActivity. These will also be added to the Branch link.
  @param publiclyIndexable Whether or not this item should be added to Apple's public search index.
  @param keywords A set of keywords to be used in Apple's search index.
- @warning These functions are only usable on iOS 9 or above. Earlier versions will simply receive the callback with an error.
  */
 - (void)createDiscoverableContentWithTitle:(NSString *)title description:(NSString *)description thumbnailUrl:(NSURL *)thumbnailUrl linkParams:(NSDictionary *)linkParams publiclyIndexable:(BOOL)publiclyIndexable keywords:(NSSet *)keywords;
 
@@ -1667,7 +1516,6 @@ typedef NS_ENUM(NSUInteger, BranchCreditHistoryOrder) {
  @param type The type to use for the NSUserActivity, taken from the list of constants provided in the MobileCoreServices framework.
  @param publiclyIndexable Whether or not this item should be added to Apple's public search index.
  @param keywords A set of keywords to be used in Apple's search index.
- @warning These functions are only usable on iOS 9 or above. Earlier versions will simply receive the callback with an error.
  */
 - (void)createDiscoverableContentWithTitle:(NSString *)title description:(NSString *)description thumbnailUrl:(NSURL *)thumbnailUrl linkParams:(NSDictionary *)linkParams type:(NSString *)type publiclyIndexable:(BOOL)publiclyIndexable keywords:(NSSet *)keywords;
 
@@ -1680,7 +1528,6 @@ typedef NS_ENUM(NSUInteger, BranchCreditHistoryOrder) {
  @param type The type to use for the NSUserActivity, taken from the list of constants provided in the MobileCoreServices framework.
  @param publiclyIndexable Whether or not this item should be added to Apple's public search index.
  @param keywords A set of keywords to be used in Apple's search index.
- @warning These functions are only usable on iOS 9 or above. Earlier versions will simply receive the callback with an error.
  */
 - (void)createDiscoverableContentWithTitle:(NSString *)title description:(NSString *)description thumbnailUrl:(NSURL *)thumbnailUrl type:(NSString *)type publiclyIndexable:(BOOL)publiclyIndexable keywords:(NSSet *)keywords;
 
@@ -1692,7 +1539,6 @@ typedef NS_ENUM(NSUInteger, BranchCreditHistoryOrder) {
  @param thumbnailUrl Url to an image to be used for the thumnbail in spotlight.
  @param publiclyIndexable Whether or not this item should be added to Apple's public search index.
  @param linkParams A set of keywords to be used in Apple's search index.
- @warning These functions are only usable on iOS 9 or above. Earlier versions will simply receive the callback with an error.
  */
 - (void)createDiscoverableContentWithTitle:(NSString *)title description:(NSString *)description thumbnailUrl:(NSURL *)thumbnailUrl linkParams:(NSDictionary *)linkParams publiclyIndexable:(BOOL)publiclyIndexable;
 
@@ -1707,7 +1553,6 @@ typedef NS_ENUM(NSUInteger, BranchCreditHistoryOrder) {
  @param type The type to use for the NSUserActivity, taken from the list of constants provided in the MobileCoreServices framework.
  @param keywords A set of keywords to be used in Apple's search index.
  @param callback Callback called with the Branch url this will fallback to.
- @warning These functions are only usable on iOS 9 or above. Earlier versions will simply receive the callback with an error.
  */
 
 - (void)createDiscoverableContentWithTitle:(NSString *)title description:(NSString *)description thumbnailUrl:(NSURL *)thumbnailUrl linkParams:(NSDictionary *)linkParams type:(NSString *)type publiclyIndexable:(BOOL)publiclyIndexable keywords:(NSSet *)keywords callback:(callbackWithUrl)callback;
@@ -1723,7 +1568,6 @@ typedef NS_ENUM(NSUInteger, BranchCreditHistoryOrder) {
  @param keywords A set of keywords to be used in Apple's search index.
  @param expirationDate ExpirationDate after which this will not appear in Apple's search index.
  @param callback Callback called with the Branch url this will fallback to.
- @warning These functions are only usable on iOS 9 or above. Earlier versions will simply receive the callback with an error.
  */
 - (void)createDiscoverableContentWithTitle:(NSString *)title description:(NSString *)description thumbnailUrl:(NSURL *)thumbnailUrl linkParams:(NSDictionary *)linkParams type:(NSString *)type publiclyIndexable:(BOOL)publiclyIndexable keywords:(NSSet *)keywords expirationDate:(NSDate *)expirationDate callback:(callbackWithUrl)callback;
 
@@ -1740,7 +1584,6 @@ typedef NS_ENUM(NSUInteger, BranchCreditHistoryOrder) {
  @param keywords A set of keywords to be used in Apple's search index.
  @param expirationDate ExpirationDate after which this will not appear in Apple's search index.
  @param callback Callback called with the Branch url this will fallback to.
- @warning These functions are only usable on iOS 9 or above. Earlier versions will simply receive the callback with an error.
  */
 - (void)createDiscoverableContentWithTitle:(NSString *)title description:(NSString *)description thumbnailUrl:(NSURL *)thumbnailUrl canonicalId:(NSString *)canonicalId linkParams:(NSDictionary *)linkParams type:(NSString *)type publiclyIndexable:(BOOL)publiclyIndexable keywords:(NSSet *)keywords expirationDate:(NSDate *)expirationDate callback:(callbackWithUrl)callback;
 
@@ -1757,7 +1600,6 @@ typedef NS_ENUM(NSUInteger, BranchCreditHistoryOrder) {
  @param keywords A set of keywords to be used in Apple's search index.
  @param expirationDate ExpirationDate after which this will not appear in Apple's search index.
  @param spotlightCallback Callback called with the Branch url this will fallback to.
- @warning These functions are only usable on iOS 9 or above. Earlier versions will simply receive the callback with an error.
  */
 - (void)createDiscoverableContentWithTitle:(NSString *)title description:(NSString *)description thumbnailUrl:(NSURL *)thumbnailUrl linkParams:(NSDictionary *)linkParams type:(NSString *)type publiclyIndexable:(BOOL)publiclyIndexable keywords:(NSSet *)keywords expirationDate:(NSDate *)expirationDate spotlightCallback:(callbackWithUrlAndSpotlightIdentifier)spotlightCallback;
 
@@ -1774,7 +1616,6 @@ typedef NS_ENUM(NSUInteger, BranchCreditHistoryOrder) {
  @param keywords A set of keywords to be used in Apple's search index.
  @param expirationDate ExpirationDate after which this will not appear in Apple's search index.
  @param spotlightCallback Callback called with the Branch url this will fallback to.
- @warning These functions are only usable on iOS 9 or above. Earlier versions will simply receive the callback with an error.
  */
 - (void)createDiscoverableContentWithTitle:(NSString *)title description:(NSString *)description thumbnailUrl:(NSURL *)thumbnailUrl canonicalId:(NSString *)canonicalId linkParams:(NSDictionary *)linkParams type:(NSString *)type publiclyIndexable:(BOOL)publiclyIndexable keywords:(NSSet *)keywords expirationDate:(NSDate *)expirationDate spotlightCallback:(callbackWithUrlAndSpotlightIdentifier)spotlightCallback;
 
@@ -1783,7 +1624,6 @@ typedef NS_ENUM(NSUInteger, BranchCreditHistoryOrder) {
  @param universalObject Branch Universal Object is indexed on spotlight using meta data of spotlight
  @param linkProperties  Branch Link Properties is used in short url generation
  @param completion Callback called when all Branch Universal Objects are indexed. Dynamic url generated and saved as spotlight identifier
- @warning These functions are only usable on iOS 9 or above. Earlier versions will simply receive the callback with an error.
  */
 - (void)indexOnSpotlightWithBranchUniversalObject:(BranchUniversalObject *)universalObject
                                    linkProperties:(nullable BranchLinkProperties *)linkProperties
@@ -1803,7 +1643,6 @@ typedef NS_ENUM(NSUInteger, BranchCreditHistoryOrder) {
  Remove Indexing of a Branch Universal Objects, which is indexed using SearchableItem of Apple's CoreSpotlight.
  @param universalObject Branch Universal Object which is already indexed using SearchableItem is removed from spotlight
  @param completion Called when the request has been journaled by the index (“journaled” means that the index makes a note that it has to perform this operation). Note that the request may not have completed.
- @warning These functions are only usable on iOS 9 or above. Earlier versions will simply receive the callback with an error.
  */
 - (void)removeSearchableItemWithBranchUniversalObject:(BranchUniversalObject *)universalObject
                                              callback:(void (^_Nullable)(NSError * _Nullable error))completion;
@@ -1811,7 +1650,6 @@ typedef NS_ENUM(NSUInteger, BranchCreditHistoryOrder) {
  Remove Indexing of an array of Branch Universal Objects, which are indexed using SearchableItem of Apple's CoreSpotlight.
  @param universalObjects Multiple Branch Universal Objects which are already indexed using SearchableItem are removed from spotlight. Note: The spotlight identifier of Branch Universal Object is used to remove indexing.
  @param completion Called when the request has been journaled by the index (“journaled” means that the index makes a note that it has to perform this operation). Note that the request may not have completed.
- @warning These functions are only usable on iOS 9 or above. Earlier versions will simply receive the callback with an error.
  */
 - (void)removeSearchableItemsWithBranchUniversalObjects:(NSArray<BranchUniversalObject*> *)universalObjects
                                                callback:(void (^_Nullable)(NSError * _Nullable error))completion;
@@ -1819,7 +1657,6 @@ typedef NS_ENUM(NSUInteger, BranchCreditHistoryOrder) {
 /*
  Remove all content spotlight indexed through either Searchable Item or privately indexed Branch Universal Object.
  @param completion Called when the request has been journaled by the index (“journaled” means that the index makes a note that it has to perform this operation). Note that the request may not have completed.
- @warning These functions are only usable on iOS 9 or above. Earlier versions will simply receive the callback with an error.
  */
 - (void)removeAllPrivateContentFromSpotLightWithCallback:(void (^_Nullable)(NSError * _Nullable error))completion;
 
@@ -1873,8 +1710,9 @@ typedef NS_ENUM(NSUInteger, BranchCreditHistoryOrder) {
  @param itemProviders - an array of item providers collected from pasteboard.
  @warning This function works with  iOS 16 or above.
  */
-- (void)passPasteItemProviders:(NSArray<NSItemProvider *> *)itemProviders API_AVAILABLE(ios(16));
+- (void)passPasteItemProviders:(NSArray<NSItemProvider *> *)itemProviders API_AVAILABLE(ios(16), macCatalyst(16));
 #endif
+
 @end
 
 NS_ASSUME_NONNULL_END

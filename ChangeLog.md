@@ -1,5 +1,37 @@
 Branch iOS SDK Change Log
 
+V.2.2.1
+ 
+Branch iOS SDK 2.2.1 adds parameter for current SKAN 4.0 Window in /v1/open and /v2/event requests.
+
+- SDK-1982 - SKAN Simplification DB updates
+
+V.2.2.0
+ 
+Branch iOS SDK 2.2.0 adds the ability to include developer ID in installs and a new method to change the Branch API base URL.
+
+- SDK-1944 - Add Developer ID to v1/install
+- SDK-1755 - Remove old Apple Search Ads APIs
+- SDK-1934 - Expose a public method to change the Branch API base url
+
+V.2.1.2
+
+Branch iOS SDK 2.1.2 adds additional support for Meta AEM links. It also includes some bug fixes and debugging improvements.
+
+- SDK-1796, SDK-1797 and SDK-1906 additional support for Meta AEM links
+- SDK-1908 Xcode 14.3 warns on C functions with empty parameter lists
+- SDK-1747 macCatalyst SKAdNetwork crash on older devices
+- SDK-1893 SKAdNetwork additional logging and safety checks
+
+
+v.2.1.1
+
+Branch iOS SDK 2.1.1 contains changes to how URL query parameters, like GBRAID and GCLID, are parsed and stored as well as a small fix for Mac Catalyst.
+
+- SDK-1800 - Extract GBRAID & GCLID from Branch referred uri/url
+    * Added new class to parse valid query parameters from URLs and append them to requests.
+- SDK-1747 - Added if available check for SKAN on Mac Catalyst
+
 v.2.1.0
 
 Branch iOS SDK 2.1.0 contains improvements to testing and plugin support (Unity, RN, etc). Most clients will see no change. 
@@ -78,7 +110,7 @@ v.1.40.0
 
 ```objective-c
     // LPLinkMetadata example
-    if (@available(iOS 13.0, *)) {
+    if (@available(iOS 13.0, macCatalyst 13.0, *)) {
         LPLinkMetadata *tempLinkMetatData = [[LPLinkMetadata alloc] init];
         tempLinkMetatData.title = @"Branch URL";
         UIImage *img = [UIImage imageNamed:@"Brand Assets"];

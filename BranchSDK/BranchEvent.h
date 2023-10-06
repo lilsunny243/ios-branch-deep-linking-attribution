@@ -7,8 +7,8 @@
 //
 
 #import "Branch.h"
-#import "BNCCommerceEvent.h"
 #import "BranchUniversalObject.h"
+#import <StoreKit/StoreKit.h>
 
 ///@group Branch Event Logging
 
@@ -60,7 +60,7 @@ typedef NS_ENUM(NSInteger, BranchEventAdType) {
 
 #pragma mark - BranchEvent
 
-@interface BranchEvent : NSObject
+@interface BranchEvent : NSObject <SKProductsRequestDelegate>
 
 - (instancetype _Nonnull) initWithName:(NSString*_Nonnull)name NS_DESIGNATED_INITIALIZER;
 
@@ -88,7 +88,6 @@ typedef NS_ENUM(NSInteger, BranchEventAdType) {
 
 @property (nonatomic, assign) BranchEventAdType                 adType;
 
-
 @property (nonatomic, strong) NSArray<BranchUniversalObject*>*_Nonnull       contentItems;
 @property (nonatomic, strong) NSDictionary<NSString*, NSString*> *_Nonnull   customData;
 
@@ -114,6 +113,9 @@ typedef NS_ENUM(NSInteger, BranchEventAdType) {
 
 - (NSDictionary*_Nonnull) dictionary;   //!< Returns a dictionary representation of the event.
 - (NSString* _Nonnull) description;     //!< Returns a string description of the event.
+
+- (void) logEventWithTransaction:(SKPaymentTransaction*_Nonnull)transaction;
+
 @end
 
 #pragma mark - BranchEventRequest

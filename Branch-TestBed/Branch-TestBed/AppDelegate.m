@@ -34,7 +34,7 @@ didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 
     // Branch.useTestBranchKey = YES;  // Make sure to comment this line out for production apps!!!
     Branch *branch = [Branch getInstance];
-    
+        
     // test pre init support
     //[self testDispatchToIsolationQueue:branch]
 
@@ -46,9 +46,6 @@ didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Comment out in production. Un-comment to test your Branch SDK Integration:
     //[branch validateSDKIntegration];
 
-    // Check for Apple Search Ad attribution (trade-off: slows down app startup):
-    //[branch delayInitToCheckForSearchAds];
-
     // partner parameter sample
     //[branch addFacebookPartnerParameterWithName:@"em" value:@"11234e56af071e9c79927651156bd7a10bca8ac34672aba121056e2698ee7088"];
     
@@ -59,17 +56,18 @@ didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
      */
 
     [self setLogFile:@"OpenNInstall"];
-    // [branch setIdentity:@"Bobby Branch"];
     
-    [branch initSessionWithLaunchOptions:launchOptions
-        andRegisterDeepLinkHandlerUsingBranchUniversalObject:
-        ^ (BranchUniversalObject * _Nullable universalObject, BranchLinkProperties * _Nullable linkProperties, NSError * _Nullable error) {
+    [branch setIdentity:@"Bobby Branch"];
+    
+    [branch initSessionWithLaunchOptions:launchOptions andRegisterDeepLinkHandlerUsingBranchUniversalObject:
+     ^ (BranchUniversalObject * _Nullable universalObject, BranchLinkProperties * _Nullable linkProperties, NSError * _Nullable error) {
+
         [self setLogFile:nil];
-            [self handleDeepLinkObject:universalObject linkProperties:linkProperties error:error];
+        [self handleDeepLinkObject:universalObject linkProperties:linkProperties error:error];
     }];
 
     // Push notification support (Optional)
-    [self registerForPushNotifications:application];
+    // [self registerForPushNotifications:application];
 
     return YES;
 }
@@ -157,27 +155,6 @@ didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     return YES;
 }
 
-#if !defined(__IPHONE_12_0) || __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_12_0
-
-- (BOOL)application:(UIApplication *)application
-continueUserActivity:(NSUserActivity *)userActivity
- restorationHandler:(void(^)(NSArray*restorableObjects))restorationHandler {
-
-    NSLog(@"application:continueUserActivity:restorationHandler: invoked.\n"
-           "ActivityType: %@ userActivity.webpageURL: %@",
-           userActivity.activityType,
-           userActivity.webpageURL.absoluteString);
-
-    // Required. Returns YES if Branch Universal Link, else returns NO.
-    // Add `branch_universal_link_domains` to .plist (String or Array) for custom domain(s).
-    [[Branch getInstance] continueUserActivity:userActivity];
-
-    // Process non-Branch userActivities here...
-    return YES;
-}
-
-#else
-
 - (BOOL)application:(UIApplication *)application
 continueUserActivity:(NSUserActivity *)userActivity
  restorationHandler:(void(^)(NSArray<id<UIUserActivityRestoring>>*restorableObjects))restorationHandler {
@@ -195,10 +172,8 @@ continueUserActivity:(NSUserActivity *)userActivity
     return YES;
 }
 
-#endif
-
 #pragma mark - Push Notifications (Optional)
-
+/*
 // Helper method
 - (void)registerForPushNotifications:(UIApplication *)application {
     if ([[[UIDevice currentDevice] systemVersion] doubleValue] >= 8.0) {
@@ -231,8 +206,9 @@ didRegisterForRemoteNotificationsWithDeviceToken:(NSData*)deviceToken {
 didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
     NSLog(@"Error registering for remote notifications: %@", error);
 }
+ */
 
-// Hook Fucntion for SDK - Its for taking control of Logging messages.
+// hook Function for SDK - Its for taking control of Logging messages.
 void APPLogHookFunction(NSDate*_Nonnull timestamp, BNCLogLevel level, NSString*_Nullable message) {
     [appDelegate processLogMessage:message];
 }

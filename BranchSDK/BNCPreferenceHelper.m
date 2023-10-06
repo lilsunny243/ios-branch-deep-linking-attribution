@@ -26,14 +26,14 @@ static NSString * const BRANCH_PREFS_KEY_APP_VERSION = @"bnc_app_version";
 static NSString * const BRANCH_PREFS_KEY_LAST_RUN_BRANCH_KEY = @"bnc_last_run_branch_key";
 static NSString * const BRANCH_PREFS_KEY_LAST_STRONG_MATCH_DATE = @"bnc_strong_match_created_date";
 
+static NSString * const BRANCH_PREFS_KEY_API_URL = @"bnc_api_url";
+static NSString * const BRANCH_PREFS_KEY_PATTERN_LIST_URL = @"bnc_pattern_list_url";
+
 static NSString * const BRANCH_PREFS_KEY_RANDOMIZED_DEVICE_TOKEN = @"bnc_randomized_device_token";
 static NSString * const BRANCH_PREFS_KEY_RANDOMIZED_BUNDLE_TOKEN = @"bnc_randomized_bundle_token";
 
 static NSString * const BRANCH_PREFS_KEY_SESSION_ID = @"bnc_session_id";
 static NSString * const BRANCH_PREFS_KEY_IDENTITY = @"bnc_identity";
-static NSString * const BRANCH_PREFS_KEY_CHECKED_FACEBOOK_APP_LINKS = @"bnc_checked_fb_app_links";
-static NSString * const BRANCH_PREFS_KEY_CHECKED_APPLE_SEARCH_ADS = @"bnc_checked_apple_search_ads";
-static NSString * const BRANCH_PREFS_KEY_APPLE_SEARCH_ADS_INFO = @"bnc_apple_search_ads_info";
 static NSString * const BRANCH_PREFS_KEY_LINK_CLICK_IDENTIFIER = @"bnc_link_click_identifier";
 static NSString * const BRANCH_PREFS_KEY_SPOTLIGHT_IDENTIFIER = @"bnc_spotlight_identifier";
 static NSString * const BRANCH_PREFS_KEY_UNIVERSAL_LINK_URL = @"bnc_universal_link_url";
@@ -49,10 +49,18 @@ static NSString * const BRANCH_PREFS_KEY_ANALYTICS_MANIFEST = @"bnc_branch_analy
 static NSString * const BRANCH_PREFS_KEY_REFERRER_GBRAID = @"bnc_referrer_gbraid";
 static NSString * const BRANCH_PREFS_KEY_REFERRER_GBRAID_WINDOW = @"bnc_referrer_gbraid_window";
 static NSString * const BRANCH_PREFS_KEY_REFERRER_GBRAID_INIT_DATE = @"bnc_referrer_gbraid_init_date";
+static NSString * const BRANCH_PREFS_KEY_REFERRER_GCLID = @"bnc_referrer_gclid";
 static NSString * const BRANCH_PREFS_KEY_SKAN_CURRENT_WINDOW = @"bnc_skan_current_window";
 static NSString * const BRANCH_PREFS_KEY_FIRST_APP_LAUNCH_TIME = @"bnc_first_app_launch_time";
 static NSString * const BRANCH_PREFS_KEY_SKAN_HIGHEST_CONV_VALUE_SENT = @"bnc_skan_send_highest_conv_value";
 static NSString * const BRANCH_PREFS_KEY_SKAN_INVOKE_REGISTER_APP = @"bnc_invoke_register_app";
+                                                                
+static NSString * const BRANCH_PREFS_KEY_USE_EU_SERVERS = @"bnc_use_EU_servers";
+
+static NSString * const BRANCH_PREFS_KEY_REFFERING_URL_QUERY_PARAMETERS = @"bnc_referring_url_query_parameters";
+
+static NSString * const BRANCH_PREFS_KEY_LOG_IAP_AS_EVENTS = @"bnc_log_iap_as_events";
+
 
 NSURL* /* _Nonnull */ BNCURLForBranchDirectory_Unthreaded(void);
 
@@ -72,37 +80,38 @@ NSURL* /* _Nonnull */ BNCURLForBranchDirectory_Unthreaded(void);
 
 @implementation BNCPreferenceHelper
 
+// since we override both setter and getter, these properties do not auto synthesize
 @synthesize
-            lastRunBranchKey = _lastRunBranchKey,
-            appVersion = _appVersion,
-            randomizedDeviceToken = _randomizedDeviceToken,
-            sessionID = _sessionID,
-            spotlightIdentifier = _spotlightIdentifier,
-            randomizedBundleToken = _randomizedBundleToken,
-            linkClickIdentifier = _linkClickIdentifier,
-            userUrl = _userUrl,
-            userIdentity = _userIdentity,
-            sessionParams = _sessionParams,
-            installParams = _installParams,
-            universalLinkUrl = _universalLinkUrl,
-            initialReferrer = _initialReferrer,
-            localUrl = _localUrl,
-            externalIntentURI = _externalIntentURI,
-            isDebug = _isDebug,
-            retryCount = _retryCount,
-            retryInterval = _retryInterval,
-            timeout = _timeout,
-            lastStrongMatchDate = _lastStrongMatchDate,
-            checkedFacebookAppLinks = _checkedFacebookAppLinks,
-            checkedAppleSearchAdAttribution = _checkedAppleSearchAdAttribution,
-            appleSearchAdDetails = _appleSearchAdDetails,
-            requestMetadataDictionary = _requestMetadataDictionary,
-            instrumentationDictionary = _instrumentationDictionary,
-            referrerGBRAID = _referrerGBRAID,
-            referrerGBRAIDValidityWindow = _referrerGBRAIDValidityWindow,
-            skanCurrentWindow = _skanCurrentWindow,
-            firstAppLaunchTime = _firstAppLaunchTime,
-            highestConversionValueSent = _highestConversionValueSent;
+    lastRunBranchKey = _lastRunBranchKey,
+    appVersion = _appVersion,
+    randomizedDeviceToken = _randomizedDeviceToken,
+    sessionID = _sessionID,
+    spotlightIdentifier = _spotlightIdentifier,
+    randomizedBundleToken = _randomizedBundleToken,
+    linkClickIdentifier = _linkClickIdentifier,
+    userUrl = _userUrl,
+    userIdentity = _userIdentity,
+    sessionParams = _sessionParams,
+    installParams = _installParams,
+    universalLinkUrl = _universalLinkUrl,
+    initialReferrer = _initialReferrer,
+    localUrl = _localUrl,
+    externalIntentURI = _externalIntentURI,
+    isDebug = _isDebug,
+    retryCount = _retryCount,
+    retryInterval = _retryInterval,
+    timeout = _timeout,
+    lastStrongMatchDate = _lastStrongMatchDate,
+    requestMetadataDictionary = _requestMetadataDictionary,
+    instrumentationDictionary = _instrumentationDictionary,
+    referrerGBRAID = _referrerGBRAID,
+    referrerGBRAIDValidityWindow = _referrerGBRAIDValidityWindow,
+    skanCurrentWindow = _skanCurrentWindow,
+    firstAppLaunchTime = _firstAppLaunchTime,
+    highestConversionValueSent = _highestConversionValueSent,
+    referringURLQueryParameters = _referringURLQueryParameters,
+    anonID = _anonID,
+    patternListURL = _patternListURL;
 
 + (BNCPreferenceHelper *)sharedInstance {
     static BNCPreferenceHelper *preferenceHelper;
@@ -125,7 +134,6 @@ NSURL* /* _Nonnull */ BNCURLForBranchDirectory_Unthreaded(void);
         _persistPrefsQueue = [[NSOperationQueue alloc] init];
         _persistPrefsQueue.maxConcurrentOperationCount = 1;
 
-        self.patternListURL = @"https://cdn.branch.io";
         self.disableAdNetworkCallouts = NO;
     }
     return self;
@@ -141,38 +149,50 @@ NSURL* /* _Nonnull */ BNCURLForBranchDirectory_Unthreaded(void);
 
 #pragma mark - API methods
 
-- (void) setBranchAPIURL:(NSString*)branchAPIURL_ {
+- (void)setBranchAPIURL:(NSString*)branchAPIURL_ {
     @synchronized (self) {
         _branchAPIURL = [branchAPIURL_ copy];
+        [self writeObjectToDefaults:BRANCH_PREFS_KEY_API_URL value:_branchAPIURL];
     }
 }
 
-- (NSString*) branchAPIURL {
+// TODO: This method is not used with the Tracking domain change. See SDK-2118
+- (NSString *)branchAPIURL {
     @synchronized (self) {
         if (!_branchAPIURL) {
-            _branchAPIURL = [BNC_API_BASE_URL copy];
+            _branchAPIURL = [self readStringFromDefaults:BRANCH_PREFS_KEY_API_URL];
         }
+        
+        // return the default URL in the event there's nothing in storage
+        if (_branchAPIURL == nil || [_branchAPIURL isEqualToString:@""]) {
+            _branchAPIURL = [BNC_API_URL copy];
+            [self writeObjectToDefaults:BRANCH_PREFS_KEY_API_URL value:_branchAPIURL];
+        }
+
         return _branchAPIURL;
     }
 }
 
-- (NSString *)getAPIBaseURL {
+- (void)setPatternListURL:(NSString*)url {
     @synchronized (self) {
-        return [NSString stringWithFormat:@"%@/%@/", self.branchAPIURL, BNC_API_VERSION];
+        _patternListURL = url;
+        [self writeObjectToDefaults:BRANCH_PREFS_KEY_PATTERN_LIST_URL value:url];
     }
 }
 
-- (NSString *)getAPIURL:(NSString *) endpoint {
-    return [[self getAPIBaseURL] stringByAppendingString:endpoint];
-}
+- (NSString *)patternListURL {
+    @synchronized (self) {
+        if (!_patternListURL) {
+            _patternListURL =  [self readStringFromDefaults:BRANCH_PREFS_KEY_PATTERN_LIST_URL];
+        }
 
-- (NSString *)getEndpointFromURL:(NSString *)url {
-    NSString *APIBase = self.branchAPIURL;
-    if ([url hasPrefix:APIBase]) {
-        NSUInteger index = APIBase.length;
-        return [url substringFromIndex:index];
+        // When no custom URL is found, return the default
+        if (_patternListURL == nil || [_patternListURL isEqualToString:@""]) {
+            _patternListURL = BNC_CDN_URL;
+        }
+
+        return _patternListURL;
     }
-    return @"";
 }
 
 #pragma mark - Preference Storage
@@ -238,6 +258,20 @@ NSURL* /* _Nonnull */ BNCURLForBranchDirectory_Unthreaded(void);
     if (randomizedDeviceToken == nil || ![_randomizedDeviceToken isEqualToString:randomizedDeviceToken]) {
         _randomizedDeviceToken = randomizedDeviceToken;
         [self writeObjectToDefaults:BRANCH_PREFS_KEY_RANDOMIZED_DEVICE_TOKEN value:randomizedDeviceToken];
+    }
+}
+
+- (NSString *)anonID {
+    if (!_anonID) {
+        _anonID = [self readStringFromDefaults:@"bnc_anon_id"];
+    }
+    return _anonID;
+}
+
+- (void)setAnonID:(NSString *)anonID {
+    if (![_anonID isEqualToString:anonID]) {
+        _anonID = anonID;
+        [self writeObjectToDefaults:@"bnc_anon_id" value:anonID];
     }
 }
 
@@ -350,6 +384,7 @@ NSURL* /* _Nonnull */ BNCURLForBranchDirectory_Unthreaded(void);
 - (void)setInitialReferrer:(NSString *)initialReferrer {
     [self writeObjectToDefaults:BRANCH_REQUEST_KEY_INITIAL_REFERRER value:initialReferrer];
 }
+
 - (NSString *)sessionParams {
     @synchronized (self) {
         if (!_sessionParams) {
@@ -395,28 +430,6 @@ NSURL* /* _Nonnull */ BNCURLForBranchDirectory_Unthreaded(void);
             [self writeObjectToDefaults:BRANCH_PREFS_KEY_INSTALL_PARAMS value:installParams];
         }
     }
-}
-
-- (void) setAppleSearchAdDetails:(NSDictionary*)details {
-    if (details == nil || [details isKindOfClass:[NSDictionary class]]) {
-        _appleSearchAdDetails = details;
-        [self writeObjectToDefaults:BRANCH_PREFS_KEY_APPLE_SEARCH_ADS_INFO value:details];
-    }
-}
-
-- (NSDictionary*) appleSearchAdDetails {
-    if (!_appleSearchAdDetails) {
-        _appleSearchAdDetails = (NSDictionary *) [self readObjectFromDefaults:BRANCH_PREFS_KEY_APPLE_SEARCH_ADS_INFO];
-    }
-    return [_appleSearchAdDetails isKindOfClass:[NSDictionary class]] ? _appleSearchAdDetails : nil;
-}
-
-- (void) setAppleSearchAdNeedsSend:(BOOL)appleSearchAdNeedsSend {
-    [self writeBoolToDefaults:@"_appleSearchAdNeedsSend" value:appleSearchAdNeedsSend];
-}
-
-- (BOOL) appleSearchAdNeedsSend {
-    return [self readBoolFromDefaults:@"_appleSearchAdNeedsSend"];
 }
 
 - (void)setAppleAttributionTokenChecked:(BOOL)appleAttributionTokenChecked {
@@ -502,27 +515,6 @@ NSURL* /* _Nonnull */ BNCURLForBranchDirectory_Unthreaded(void);
         [baseUrl appendString:@"?"];
     }
     return baseUrl;
-}
-
-- (BOOL)checkedAppleSearchAdAttribution {
-    _checkedAppleSearchAdAttribution = [self readBoolFromDefaults:BRANCH_PREFS_KEY_CHECKED_APPLE_SEARCH_ADS];
-    return _checkedAppleSearchAdAttribution;
-}
-
-- (void)setCheckedAppleSearchAdAttribution:(BOOL)checked {
-    _checkedAppleSearchAdAttribution = checked;
-    [self writeBoolToDefaults:BRANCH_PREFS_KEY_CHECKED_APPLE_SEARCH_ADS value:checked];
-}
-
-
-- (BOOL)checkedFacebookAppLinks {
-    _checkedFacebookAppLinks = [self readBoolFromDefaults:BRANCH_PREFS_KEY_CHECKED_FACEBOOK_APP_LINKS];
-    return _checkedFacebookAppLinks;
-}
-
-- (void)setCheckedFacebookAppLinks:(BOOL)checked {
-    _checkedFacebookAppLinks = checked;
-    [self writeBoolToDefaults:BRANCH_PREFS_KEY_CHECKED_FACEBOOK_APP_LINKS value:checked];
 }
 
 - (NSMutableDictionary *)requestMetadataDictionary {
@@ -658,21 +650,22 @@ NSURL* /* _Nonnull */ BNCURLForBranchDirectory_Unthreaded(void);
     }
 }
 
-- (BOOL)sendCloseRequests {
+- (void)setReferringURLQueryParameters:(NSMutableDictionary *)parameters {
     @synchronized(self) {
-        NSNumber *b = (id) [self readObjectFromDefaults:@"sendCloseRequests"];
-        if ([b isKindOfClass:NSNumber.class]) return [b boolValue];
-        
-        // by default, we do not send close events
-        return NO;
+        _referringURLQueryParameters = parameters;
+        [self writeObjectToDefaults:BRANCH_PREFS_KEY_REFFERING_URL_QUERY_PARAMETERS value:parameters];
     }
 }
 
-- (void)setSendCloseRequests:(BOOL)disabled {
+- (NSMutableDictionary *)referringURLQueryParameters {
     @synchronized(self) {
-        [self writeObjectToDefaults:@"sendCloseRequests" value:@(disabled)];
+        if (!_referringURLQueryParameters) {
+            _referringURLQueryParameters = (NSMutableDictionary *)[self readObjectFromDefaults:BRANCH_PREFS_KEY_REFFERING_URL_QUERY_PARAMETERS];
+        }
     }
+    return _referringURLQueryParameters;
 }
+
 
 - (NSString *) referrerGBRAID {
     @synchronized(self) {
@@ -783,7 +776,6 @@ NSURL* /* _Nonnull */ BNCURLForBranchDirectory_Unthreaded(void);
     }
 }
 
-
 - (void) clearTrackingInformation {
     @synchronized(self) {
         /*
@@ -798,8 +790,6 @@ NSURL* /* _Nonnull */ BNCURLForBranchDirectory_Unthreaded(void);
         self.universalLinkUrl = nil;
         self.initialReferrer = nil;
         self.installParams = nil;
-        self.appleSearchAdDetails = nil;
-        self.appleSearchAdNeedsSend = NO;
         self.sessionParams = nil;
         self.externalIntentURI = nil;
         self.savedAnalyticsData = nil;
@@ -807,6 +797,8 @@ NSURL* /* _Nonnull */ BNCURLForBranchDirectory_Unthreaded(void);
         self.requestMetadataDictionary = nil;
         self.lastStrongMatchDate = nil;
         self.userIdentity = nil;
+        self.referringURLQueryParameters = nil;
+        self.anonID = nil;
     }
 }
 
@@ -897,13 +889,7 @@ NSURL* /* _Nonnull */ BNCURLForBranchDirectory_Unthreaded(void);
     
     NSData *data = nil;
     @try {
-        if (@available(iOS 11.0, tvOS 11.0, *)) {
-            data = [NSKeyedArchiver archivedDataWithRootObject:dict requiringSecureCoding:YES error:NULL];
-        } else {
-            #if __IPHONE_OS_VERSION_MIN_REQUIRED < 12000
-            data = [NSKeyedArchiver archivedDataWithRootObject:dict];
-            #endif
-        }
+        data = [NSKeyedArchiver archivedDataWithRootObject:dict requiringSecureCoding:YES error:NULL];
     } @catch (id exception) {
         BNCLogWarning([NSString stringWithFormat:@"Exception serializing preferences dict: %@.", exception]);
     }
@@ -943,19 +929,12 @@ NSURL* /* _Nonnull */ BNCURLForBranchDirectory_Unthreaded(void);
 - (NSMutableDictionary *)deserializePrefDictFromData:(NSData *)data {
     NSDictionary *dict = nil;
     if (data) {
-        if (@available(iOS 11.0, tvOS 11.0, *)) {
-            NSError *error = nil;
-            NSSet *classes = [[NSMutableSet alloc] initWithArray:@[ NSNumber.class, NSString.class, NSDate.class, NSArray.class, NSDictionary.class ]];
+        NSError *error = nil;
+        NSSet *classes = [[NSMutableSet alloc] initWithArray:@[ NSNumber.class, NSString.class, NSDate.class, NSArray.class, NSDictionary.class ]];
 
-            dict = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:data error:&error];
-            if (error) {
-                BNCLogWarning(@"Failed to load preferences from storage.");
-            }
-
-        } else {
-        #if __IPHONE_OS_VERSION_MIN_REQUIRED < 12000
-            dict = [NSKeyedUnarchiver unarchiveObjectWithData:data];
-        #endif
+        dict = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:data error:&error];
+        if (error) {
+            BNCLogWarning(@"Failed to load preferences from storage.");
         }
     }
     
@@ -1060,7 +1039,7 @@ NSURL* _Null_unspecified BNCCreateDirectoryForBranchURLWithSearchPath_Unthreaded
     return nil;
 }
 
-NSURL* _Nonnull BNCURLForBranchDirectory_Unthreaded() {
+NSURL* _Nonnull BNCURLForBranchDirectory_Unthreaded(void) {
     #if TARGET_OS_TV
     // tvOS only allows the caches or temp directory
     NSArray *kSearchDirectories = @[
@@ -1099,7 +1078,7 @@ NSURL* _Nonnull BNCURLForBranchDirectory_Unthreaded() {
     return branchURL;
 }
 
-NSURL* _Nonnull BNCURLForBranchDirectory() {
+NSURL* _Nonnull BNCURLForBranchDirectory(void) {
     static NSURL *urlForBranchDirectory = nil;
     static dispatch_once_t onceToken = 0;
     dispatch_once(&onceToken, ^ {
