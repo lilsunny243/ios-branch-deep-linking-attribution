@@ -85,7 +85,7 @@ jobs:
           echo "$EOF" >> $GITHUB_OUTPUT
 
       - name: Post to a Slack channel
-        uses: slackapi/slack-github-action@v1.24.0
+        uses: slackapi/slack-github-action@v1.26.0
         with:
           channel-id: "C03RTLRKJQP"
           payload: |
